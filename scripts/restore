@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#===================================================================
+# Restore script for List Manager YunoHost package
+#===================================================================
+
+# Source YunoHost helpers
+# shellcheck source=../yunch_helpers.sh
+source /usr/share/yunohost/helpers
+
+# Exit script immediately if a command exits with a non-zero status
+set -e
+
+#===================================================================
+# RESTORE
+#===================================================================
+
+# This script restores the data backed up by the backup script.
+# The actual restore process (copying files) is handled by YunoHost core.
+
+# Restore the data directory
+# $backup_dir contains the path to the backup archive content
+yh_restore_app_data "$data_dir"
+
+# Restore app settings (handled by core)
+# yh_restore_app_settings
+
+# If there were a database, we would restore it here, e.g.:
+# yh_psql_restore_db "$db_name" --backup_file="$backup_dir/$db_name.sql"
+
+# Ensure correct permissions after restoring data
+chown -R "$app:$app" "$data_dir"
+
+exit 0
+

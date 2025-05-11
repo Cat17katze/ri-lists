@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#===================================================================
+# Remove script for List Manager YunoHost package
+#===================================================================
+
+# Source YunoHost helpers
+# shellcheck source=../yunch_helpers.sh
+source /usr/share/yunohost/helpers
+
+# Exit script immediately if a command exits with a non-zero status
+set -e
+
+#===================================================================
+# PRE-REMOVE
+#===================================================================
+
+yunohost_api
+
+# Note: Most resource removal (apt, python_venv, dirs, nginx, systemd, permissions)
+# is handled automatically by YunoHost core based on manifest.toml definitions.
+# This script focuses on the cleanup steps *not* covered automatically.
+
+#===================================================================
+# REMOVAL
+#===================================================================
+
+yh_script_progression --message="Removing application service..." --weight=1
+# Stop and disable the service (systemd resource removal handles this)
+# yh_systemd_remove --service="$app"
+
+yh_script_progression --message="Removing Nginx configuration..." --weight=1
+# Remove Nginx config (nginx resource removal handles this)
+# yh_remove_nginx_config
+
+yh_script_progression --message="Removing application files..." --weight=1
+# Remove installation directory (install_dir resource removal handles this)
+# rm -rf "$install_dir"
+
+# Remove data directory (data_dir resource removal handles this)
+# By default, YunoHost asks the user if they want to remove the data.
+# If the user confirms, the core removes the directory specified by the data_dir resource.
+# yh_app_remove_data_dir
+
+yh_script_progression --message="Removing Python dependencies..." --weight=1
+# Remove Python virtual environment (python_venv resource removal handles this)
+# ynh_python_venv_remove
+
+echo "Removal complete."
+
+exit 0
+

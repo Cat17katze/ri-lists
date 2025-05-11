@@ -1,0 +1,73 @@
+#!/bin/bash
+
+#===================================================================
+# Upgrade script for List Manager YunoHost package
+#===================================================================
+
+# Source YunoHost helpers
+# shellcheck source=../yunch_helpers.sh
+source /usr/share/yunohost/helpers
+
+# Exit script immediately if a command exits with a non-zero status
+set -e
+
+#===================================================================
+# PRE-UPGRADE
+#===================================================================
+
+yunohost_api
+
+# Retrieve arguments
+# The new version is available in $YNH_APP_ARG_VERSION
+# The directory containing the new version files is $YNH_APP_ARG_PATH
+
+#===================================================================
+# UPGRADE
+#===================================================================
+
+yh_script_progression --message="Backing up application before upgrade (automatic)" --weight=1
+# Note: YunoHost automatically creates a backup before running the upgrade script.
+
+# Stop the service before upgrading files
+yh_script_progression --message="Stopping application service..." --weight=1
+yh_systemd_action --service="$app" --action="stop"
+
+yh_script_progression --message="Upgrading application source files..." --weight=2
+# Remove old source files (except config if needed, but here we replace everything)
+rm -rf "$install_dir/*"
+# Copy new source files from the new package directory
+cp -a "$YNH_APP_ARG_PATH/sources/." "$install_dir/"
+# Ensure correct ownership
+chown -R "$app:$app" "$install_dir"
+
+# Upgrade Python dependencies
+yh_script_progression --message="Upgrading Python dependencies..." --weight=2
+# Use the python_venv resource helpers
+yh_python_venv_install_requirements --venv="$install_dir/venv" --requirements="$install_dir/requirements.txt"
+# Install gunicorn again if it was specified in manifest
+yh_python_venv_install_package --venv="$install_dir/venv" --package="gunicorn"
+
+# Data migration (if needed)
+# yh_script_progression --message="Running data migration..." --weight=1
+# Add commands here if the data format changes between versions
+
+# Update Nginx configuration (if template changed)
+# yh_script_progression --message="Updating Nginx configuration..." --weight=1
+# ynh_add_nginx_config # This will overwrite the existing config with the new template
+
+# Update Systemd service (if template changed)
+# yh_script_progression --message="Updating Systemd service..." --weight=1
+# ynh_add_systemd_config # This will overwrite the existing config with the new template
+# ynh_systemd_override_env --service="$app.service" --env="DATA_DIR=$data_dir" # Re-apply overrides if needed
+
+# Restart the service
+yh_script_progression --message="Restarting application service..." --weight=1
+yh_systemd_action --service="$app" --action="start"
+
+# Reload Nginx if config was updated
+# yh_service_reload nginx
+
+echo "Upgrade complete."
+
+exit 0
+

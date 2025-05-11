@@ -1,0 +1,79 @@
+#!/bin/bash
+
+#===================================================================
+# Install script for List Manager YunoHost package
+#===================================================================
+
+# Source YunoHost helpers
+# shellcheck source=../yunch_helpers.sh
+source /usr/share/yunohost/helpers
+
+# Exit script immediately if a command exits with a non-zero status
+set -e
+
+#===================================================================
+# PRE-INSTALL
+#===================================================================
+
+yunohost_api
+
+# Note: Most resource provisioning (apt, python_venv, dirs, nginx, systemd, permissions)
+# is handled automatically by YunoHost core based on manifest.toml definitions.
+# This script focuses on the steps *not* covered automatically.
+
+#===================================================================
+# INSTALLATION
+#===================================================================
+
+yh_script_progression --message="Setting up application source files..." --weight=1
+
+# Copy sources to the installation directory
+# The `install_dir` resource automatically creates the directory /var/www/$app
+# The `sources` resource automatically copies the content of the package's sources/ dir here
+# We just need to ensure correct ownership if needed, though helpers might handle this.
+
+# Ensure the data directory exists and has correct permissions
+# The `data_dir` resource creates /home/yunohost.app/$app
+yh_script_progression --message="Configuring data directory..." --weight=1
+# ynh_app_create_data_dir already creates the directory
+# We need to ensure the app user (which is $app) can write to it.
+chown -R "$app:$app" "$data_dir"
+
+# Install Python dependencies (handled by python_venv resource)
+yh_script_progression --message="Installing Python dependencies..." --weight=2
+# Core automatically runs: ynh_python_venv_create, ynh_python_venv_install_requirements, ynh_python_venv_install_package
+
+# Configure application (e.g., tell it where the data dir is)
+# This might involve creating a config file or setting environment variables in the systemd service
+yh_script_progression --message="Configuring application..." --weight=1
+# For now, we assume the app will be modified to find data_dir (Step 4)
+# Example: Create a config file or modify an existing one
+# echo "DATA_DIR=$data_dir" > "$install_dir/config.env"
+# chown "$app:$app" "$install_dir/config.env"
+
+# Install Nginx configuration (handled by nginx resource)
+yh_script_progression --message="Configuring Nginx..." --weight=1
+# Core automatically runs: ynh_add_nginx_config
+
+# Install Systemd service (handled by systemd resource)
+yh_script_progression --message="Configuring Systemd service..." --weight=1
+# Core automatically runs: ynh_add_systemd_config
+# We might need to override environment variables here if needed
+# ynh_systemd_override_env --service="$app.service" --env="DATA_DIR=$data_dir"
+
+# Start the service
+yh_script_progression --message="Starting application service..." --weight=1
+yh_systemd_enable --service="$app"
+yh_systemd_action --service="$app" --action="start"
+
+# Reload Nginx
+yh_service_reload nginx
+
+# Set final permissions (handled by permissions resource)
+yh_script_progression --message="Finalizing installation..." --weight=1
+# Core automatically runs: ynh_app_setting_set --app="$app" --key=permission --value="$permission"
+
+echo "Installation complete."
+
+exit 0
+

@@ -1,0 +1,30 @@
+[Unit]
+Description=List Manager web application service
+After=network.target
+
+[Service]
+Type=simple
+
+# Run as the app-specific user
+User=__APP__
+Group=__APP__
+
+# Set working directory to the app installation path
+WorkingDirectory=__INSTALL_DIR__
+
+# Set environment variables
+# Ensure the app knows where its data directory is
+Environment="LIST_MANAGER_DATA_DIR=__DATA_DIR__"
+# Add other environment variables if needed, e.g., for Flask settings
+# Environment="FLASK_ENV=production"
+
+# Command to start the application using Gunicorn
+# Assumes venv is created inside __INSTALL_DIR__ by the python_venv resource
+ExecStart=__INSTALL_DIR__/venv/bin/gunicorn --workers 2 --bind 127.0.0.1:__PORT__ "src.main:app"
+
+# Restart policy
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

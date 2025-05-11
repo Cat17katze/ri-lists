@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#===================================================================
+# Backup script for List Manager YunoHost package
+#===================================================================
+
+# Source YunoHost helpers
+# shellcheck source=../yunch_helpers.sh
+source /usr/share/yunohost/helpers
+
+# Exit script immediately if a command exits with a non-zero status
+set -e
+
+#===================================================================
+# BACKUP
+#===================================================================
+
+# This script primarily declares what needs to be backed up.
+# The actual backup is handled by YunoHost core.
+
+# Backup the data directory where JSON lists are stored
+yh_backup_app_data "$data_dir"
+
+# Backup essential app settings (like domain, path, etc.)
+yh_backup_app_settings
+
+# If there were a database, we would dump it here, e.g.:
+# yh_psql_dump_db "$db_name" --output="$backup_dir/$db_name.sql"
+
+exit 0
+

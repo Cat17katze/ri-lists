@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Manager</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        #list-selection, #list-details, #create-list-form {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .list-item-controls button, .item-controls button, #create-list-form button, #add-item-form button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 3px;
+        }
+        .view-btn { background-color: #4CAF50; color: white; }
+        .delete-list-btn { background-color: #f44336; color: white; }
+        .edit-item-btn { background-color: #ff9800; color: white; }
+        .delete-item-btn { background-color: #f44336; color: white; }
+        .save-item-btn { background-color: #2196F3; color: white; }
+        .cancel-edit-btn { background-color: #777; color: white; }
+        #create-list-form input[type="text"], #add-item-form input[type="text"], #add-item-form textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #create-list-form button, #add-item-form button {
+             background-color: #2196F3; color: white;
+        }
+        .item-details {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 5px;
+            white-space: pre-wrap; /* Preserve whitespace and newlines */
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>List Manager</h1>
+
+        <!-- Section to display list of lists -->
+        <div id="list-selection">
+            <h2>Available Lists</h2>
+            <ul id="lists-ul"></ul>
+            <button id="show-create-list-form-btn">Create New List</button>
+        </div>
+
+        <!-- Section to create a new list -->
+        <div id="create-list-form" class="hidden">
+            <h2>Create New List</h2>
+            <input type="text" id="new-list-title" placeholder="Enter list title">
+            <button id="create-list-btn">Create List</button>
+            <button id="cancel-create-list-btn">Cancel</button>
+        </div>
+
+        <!-- Section to display details of a selected list -->
+        <div id="list-details" class="hidden">
+            <h2 id="current-list-title"></h2>
+            <ul id="items-ul"></ul>
+            <hr>
+            <h3>Add New Item</h3>
+            <form id="add-item-form">
+                <input type="text" id="new-item-title" placeholder="Item title" required>
+                <textarea id="new-item-details" placeholder="Item details"></textarea>
+                <button type="submit">Add Item</button>
+            </form>
+            <hr>
+            <button id="back-to-lists-btn">Back to Lists</button>
+            <button id="delete-current-list-btn" class="delete-list-btn">Delete This List</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

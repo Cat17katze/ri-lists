@@ -1,0 +1,99 @@
+# YunoHost Packaging v2 Manifest for List Manager
+
+packaging_format = 2
+id = "listmanager"
+name = "List Manager"
+description.en = "A simple web application to manage multiple lists (ToDo, links, etc.) without login."
+description.de = "Eine einfache Webanwendung zur Verwaltung mehrerer Listen (ToDo, Links usw.) ohne Anmeldung."
+
+# Use the format <upstream_version>~ynh<packaging_revision>
+# Start with 1.0 as upstream version if none exists, and ynh1 for the first packaging version.
+version = "1.0~ynh1"
+
+maintainers = ["YourNameOrPseudo"] # Replace with actual maintainer info
+
+[upstream]
+# Assuming MIT license for the created code, adjust if different.
+license = "MIT"
+# Add code repository URL if available
+# code = "https://github.com/user/repo"
+
+[integration]
+yunohost = ">= 11.1" # Requires packaging_format = 2
+helpers_version = "2.1" # Use latest stable helpers
+architectures = "all" # Python app, should run on all architectures
+multi_instance = false # Not designed for multi-instance yet
+
+# No user accounts in the app itself
+ldap = "not_relevant"
+sso = "not_relevant"
+
+# Resource estimates (adjust as needed)
+disk = "50M" # Includes Python venv and sources
+ram.build = "100M" # pip install might need some RAM
+ram.runtime = "50M" # Flask + Gunicorn base usage
+
+# --- Installation Questions --- 
+
+[install]
+    # Standard arguments for web apps
+    [install.domain]
+    type = "domain"
+    ask.en = "Choose a domain for List Manager"
+    ask.de = "Wählen Sie eine Domain für List Manager"
+    help.en = "The domain where the app will be accessible"
+    help.de = "Die Domain, unter der die App erreichbar sein wird"
+
+    [install.path]
+    type = "path"
+    ask.en = "Choose a path for List Manager"
+    ask.de = "Wählen Sie einen Pfad für List Manager"
+    help.en = "The path where the app will be accessible (e.g., /listmanager)"
+    help.de = "Der Pfad, unter dem die App erreichbar sein wird (z.B. /listmanager)"
+    default = "/listmanager"
+
+    [install.init_main_permission]
+    type = "group"
+    ask.en = "Choose the main permission for List Manager"
+    ask.de = "Wählen Sie die Hauptberechtigung für List Manager"
+    help.en = "Default permission for users accessing the app. Recommended: 'All users'."
+    help.de = "Standardberechtigung für Benutzer, die auf die App zugreifen. Empfohlen: 'Alle Benutzer'."
+    default = "all_users"
+
+# --- Resource Definitions --- 
+
+[resources]
+    # App sources (will be copied from the package sources/ dir)
+    [resources.sources]
+
+    # Installation directory
+    [resources.install_dir]
+    # Default path: /var/www/<app_id>
+
+    # Data directory (where JSON lists are stored)
+    [resources.data_dir]
+    # Default path: /home/yunohost.app/<app_id>
+    # Needs write access by the app's system user
+
+    # System dependencies
+    [resources.apt]
+    packages = "python3.11, python3.11-venv, python3-pip, nginx"
+
+    # Python dependencies (will be installed via pip in a venv)
+    [resources.python_venv]
+    requirements_path = "./requirements.txt" # Path relative to sources dir
+    # Add gunicorn here if not already in requirements.txt
+    packages_to_install = ["gunicorn"]
+
+    # Systemd service for running the app (e.g., with Gunicorn)
+    [resources.systemd]
+    # The service file template will be in conf/systemd.service
+
+    # Nginx configuration for web access
+    [resources.nginx]
+    # The nginx config template will be in conf/nginx.conf
+
+    # Permissions management
+    [resources.permissions]
+    main.default = "init_main_permission"
+
